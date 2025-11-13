@@ -1,4 +1,4 @@
-
+import statistics
 
 def ask_file_path():
     """Ask the user to enter the CSV file path until a valid one is provided. 
@@ -73,7 +73,7 @@ and summaries from the CSV data.
     elif number == 3:
         print_unique_dates()
     elif number == 4:
-        statistics()
+        statistics_stats()
     elif number == 5:
         colors()
     elif number == 6:
@@ -85,7 +85,7 @@ and summaries from the CSV data.
     elif number == 9:
         print_q_word_stats()
     elif number == 10:
-        save__file()
+        save_file()
     else:
         print("Enter a correct number.")
 
@@ -101,15 +101,15 @@ def print_number_of_lines() -> None:
 def print_contents():
     """Print each line of CSV contents in a readable and formatted way."""
     global contents
-    for index, line in enumerate(contents, start=1):
+    for i, line in enumerate(contents, start=1):
         try:
             line_text = (
-                f"Line {index}, started on {line[1]}, sent on {line[2]}, "
+                f"Line {i}, started on {line[1]}, sent on {line[2]}, "
                 f"{line[3]}, {line[4]}, {line[5]}, {line[6]}"
             )
             print(line_text)
         except IndexError:
-            print(f"Line {index} is incomplete or malformed.")
+            print(f"Line {i} is incomplete or malformed.")
 
 
 def print_unique_dates():
@@ -123,7 +123,8 @@ def print_unique_dates():
     print(dates)
 
 
-def statistics():
+
+def statistics_stats():
     """Calculate and print the average, maximum, and minimum of numbers from column 4."""
     global contents
     numbers = []
@@ -138,7 +139,7 @@ def statistics():
             continue
 
     if numbers:
-        average = sum(numbers) / len(numbers)
+        average = statistics.mean(numbers)
         highest_number = max(numbers)
         lowest_number = min(numbers)
         print(average, highest_number, lowest_number)
@@ -246,7 +247,7 @@ def print_q_word_stats():
     print(f"{count_no_q} contain no Q")
 
 
-def save__file():
+def save_file():
     """Save filtered CSV data (IDs, numbers, colors, and Q-words) to a new file."""
     global contents
     info = []
@@ -279,6 +280,7 @@ def save__file():
 
 
 """Start the program by displaying the menu."""
-menu()
+if __name__ == "__main__":
+    menu()
 
 
