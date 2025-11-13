@@ -1,50 +1,64 @@
-# A/
-# Asks the user where the CSV file is located.
-# Keeps asking until the file can be read successfully, or until the user types ‘Stop’ to end the program.
+
 
 def ask_file_path():
-    correct_path = ".//bord.csv"  # This is the expected correct file path
+    """Ask the user to enter the CSV file path until a valid one is provided. 
+       If the user enters 'Stop', the program quits.
+    """
+
+    correct_path = "./Module 1-Hamideh/bord.csv"
+
     while True:
-        file_path = input("where is the CSV file located (Type Stop to stop asking)?")
-        if file_path.lower() == "stop":  # Check if the user wants to quit
-            print("End!You asked to stop the program!")
+        file_path = input("Where is the CSV file located (type 'Stop' to quit)? ")
+
+        if file_path.lower() == "stop":
+            print("End! You asked to stop the program.")
             break
-        elif file_path == correct_path:  # Check if the path matches the correct path
-            # print ("File is found!")
-            return correct_path  # Return the correct path to use for reading
+
+        elif file_path == correct_path:
+            return correct_path
+
         else:
-            print("file path is not valid! enter again!")  # Ask again if the path is wrong
+            print("File path is not valid! Please try again.")
 
-# B/
-# Reads the entire file. Ignore the first line (column names).
-# The data structure in memory should be a list of lists, with the variable name contents.
 
-contents = []  # Global variable to store all lines from the CSV for other functions to use
+## Global variable to store all CSV lines so it can be used in other menu items as well.
+contents = []  
+
 
 def read_file():
+    """Read the CSV file into a list of lists, skipping the header."""
     global contents
-    target_file = ask_file_path()  # Ask the user for the file path
-    with open(target_file) as my_file:  # Open the file
+
+    target_file = ask_file_path()
+
+    with open(target_file) as my_file:
         my_file.readline()  # Skip the first line (header)
         contents = []
-        for line in my_file:  # Read each line
-            line = line[:-1]  # Remove newline at the end
-            line = line.split(";")  # Split line into a list using semicolon
-            contents.append(line)  # Add line to contents
-        # for line in contents:
-        #     print(line)
-        return contents  # Return the full contents
 
-# Menu to allow user to select what to do with the CSV data
+        for line in my_file:
+            line = line.rstrip("\n")
+            line = line.split(";")
+            contents.append(line)
+
+    return contents
+
 def menu():
-    read_file()  
+    """
+Display a menu for the user to get different information about the CSV data.
+
+The function first reads the CSV file, then presents a numbered menu
+allowing the user to select options that provide various insights
+and summaries from the CSV data.
+
+"""
+    read_file()
     print("You can select one of the following numbers to understand the file:")
     print("1: number of lines!")
     print("2: content line!")
     print("3: dates!")
     print("4: statistics!")
     print("5: color statistics!")
-    print("6: place names!") 
+    print("6: place names!")
     print("7: participation statistics!")
     print("8: ID statistics!")
     print("9: Q-word statistics!")
@@ -52,7 +66,6 @@ def menu():
 
     number = int(input("Enter your number: "))
 
-    # Calls the appropriate function based on user input.
     if number == 1:
         print_number_of_lines()
     elif number == 2:
@@ -64,71 +77,77 @@ def menu():
     elif number == 5:
         colors()
     elif number == 6:
-        print_place_names()  
+        print_place_names()
     elif number == 7:
-        participation_stats() 
+        participation_stats()
     elif number == 8:
         print_id_stats()
     elif number == 9:
-        print_q_word_stats() 
+        print_q_word_stats()
     elif number == 10:
         save__file()
     else:
-        print("Enter a correct number.")  # Inform user if input is invalid
+        print("Enter a correct number.")
 
-# Prints total number of lines.
-def print_number_of_lines () -> None:
-    """Print the total number of lines in the contents."""
+
+
+def print_number_of_lines() -> None:
+    """Print the total number of lines in the CSV contents."""
     global contents
-    count_lines = len(contents)  # Count number of lines
+    count_lines = len(contents)
     print(f"Number of lines: {count_lines}.")
 
-# Prints each line in a readable way
+
 def print_contents():
-    """Print each line of contents in a readable and formatted way."""
+    """Print each line of CSV contents in a readable and formatted way."""
     global contents
     for index, line in enumerate(contents, start=1):
         try:
-            # Combine elements of line into a readable string
             line_text = (
                 f"Line {index}, started on {line[1]}, sent on {line[2]}, "
                 f"{line[3]}, {line[4]}, {line[5]}, {line[6]}"
             )
             print(line_text)
-        except IndexError:  # Handle lines that are too short
+        except IndexError:
             print(f"Line {index} is incomplete or malformed.")
 
-# Shows unique dates from the second column.
+
 def print_unique_dates():
+    """Print the number of unique dates found in the second column of the CSV."""
     global contents
-    dates = set()  # Use a set to store unique dates
+    dates = set()
     for line in contents:
-        date_time = line[1].split(" ")  # Split date and time
-        date = date_time[0]  # Take only the date part
+        date = line[1].split(" ")[0]  # Extract only the date part
         dates.add(date)
     print(f"There are {len(dates)} unique dates:")
     print(dates)
 
-# Shows statistics (average, max, min) of numbers from column 4
+
 def statistics():
+    """Calculate and print the average, maximum, and minimum of numbers from column 4."""
     global contents
-    random_numbers = []
+    numbers = []
+
     for line in contents:
         if len(line) < 4 or line[3] == "":
-            continue  # Skip empty or missing numbers
-        try:
-            num = float(line[3].replace(",", "."))  # Convert to float
-            random_numbers.append(num)
-        except ValueError:  # Skip if conversion fails
             continue
-    # Calculates average, max, min.
-    average = sum(random_numbers)/len(random_numbers)
-    highest_number = max(random_numbers)
-    lowest_number = min(random_numbers)
-    print(average, highest_number, lowest_number)
+        try:
+            num = float(line[3].replace(",", "."))
+            numbers.append(num)
+        except ValueError:
+            continue
 
-# Counts different colors and find the most frequent one.
+    if numbers:
+        average = sum(numbers) / len(numbers)
+        highest_number = max(numbers)
+        lowest_number = min(numbers)
+        print(average, highest_number, lowest_number)
+    else:
+        print("No valid numbers found in column 4.")
+
+
 def colors():
+    """Count different colors and find the most frequent one."""
     global contents
     colors_number = {}
     colors = []
@@ -136,16 +155,14 @@ def colors():
     for line in contents:
         if line[5].lower() == "":
             continue
-        else:
-            colors.append(line[5].lower())  
+        colors.append(line[5].lower())
 
     for color in colors:
-        colors_number[color] = colors.count(color)  
+        colors_number[color] = colors.count(color)
 
     for color, count in colors_number.items():
         print(f"{color.upper()}: {count}")
-    
-    # Finds the most frequents color.
+
     max_count = 0
     max_color = ""
     for color, count in colors_number.items():
@@ -155,20 +172,21 @@ def colors():
 
     print(f"The color that appears the most: {max_color.upper()}")
 
-# Shows unique places (remove repeated ones) from column 5.
+
 def print_place_names():
+    """Print unique place names from column 5 of the CSV."""
     global contents
     places = set()
     for line in contents:
         if line[4].lower() == "":
             continue
-        else:
-            place = line[4].lower()
-            places.add(place)
+        place = line[4].lower()
+        places.add(place)
+
     print(f"Here are {len(places)} unique places:")
     print(places)
 
-# Shows number of complete and incomplete submissions.
+
 def participation_stats():
     """Print the number of complete and incomplete submissions."""
     global contents
@@ -184,8 +202,9 @@ def participation_stats():
     total = complete + incomplete
     print(f"There are {total} submissions: {complete} complete and {incomplete} incomplete.")
 
-# Shows missing IDs in column 1
+
 def print_id_stats():
+    """Print missing IDs from column 1 of the CSV."""
     global contents
     ID_list = []
     missing_ID = []
@@ -193,7 +212,7 @@ def print_id_stats():
     for line in contents:
         ID_list.append(int(line[0]))
 
-    ID_list.sort()  
+    ID_list.sort()
 
     for i in range(ID_list[0], ID_list[-1] + 1):
         if i not in ID_list:
@@ -201,20 +220,20 @@ def print_id_stats():
 
     print(f"These values are missing: {missing_ID}")
         
-# Shows statistics about words starting or containing Q in column 7
 def print_q_word_stats():
+    """Print statistics about words in column 7 starting with or containing 'Q'."""
     global contents
     q_words = []
     count_start_q = 0
     count_contain_q = 0
-    count_no_q = 0 
-    
+    count_no_q = 0
+
     for line in contents:
         if len(line) > 6 and line[6].strip() != "":
             q_words.append(line[6].strip())
-   
+
     for item in q_words:
-        word = item.lower()  
+        word = item.lower()
         if word.startswith("q"):
             count_start_q += 1
         elif "q" in word:
@@ -226,16 +245,17 @@ def print_q_word_stats():
     print(f"{count_contain_q} words contain a Q but not as the first letter")
     print(f"{count_no_q} contain no Q")
 
-# Saves filtered data to a new CSV file
+
 def save__file():
+    """Save filtered CSV data (IDs, numbers, colors, and Q-words) to a new file."""
     global contents
     info = []
 
     for line in contents:
         if len(line) > 0 and line[0].strip() != "":
-            id = line[0].strip()
+            id_ = line[0].strip()
         else:
-            id = ""
+            id_ = ""
 
         if len(line) > 3 and line[3].strip() != "":
             number = line[3].strip()
@@ -249,15 +269,16 @@ def save__file():
 
         if len(line) > 6 and line[6].strip() != "" and line[6].strip().lower().startswith("q"):
             q_word = line[6].strip()
-            info.append([id, number, color, q_word])
-    
+            info.append([id_, number, color, q_word])
+
     file_name = input("Enter a file name: ")
     with open(file_name + ".csv", "w") as file:
         for row in info:
-            file.write(";".join(row) + "\n")   
+            file.write(";".join(row) + "\n")
 
-# calling the program by menu function.
+
+
+"""Start the program by displaying the menu."""
 menu()
-
 
 
